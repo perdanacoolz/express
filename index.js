@@ -43,7 +43,7 @@ app.get("/products", async (req, res) => {
     res.status(500).json({
       message: err,
     });	
-  }
+  }//a
 });
 //filter
 app.get("/products/kategori/:categori_id", async (req, res) => {
