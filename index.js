@@ -17,11 +17,11 @@ const connection = mysql.createPool({
 
 app.post("/products", async (req, res) => {
   try {
-    const { name, address, country } = req.body;
+    const { title, slug, lang,status,type,count} = req.body;
     const [{ insertId }] = await connection.promise().query(
-      `INSERT INTO users (name, address, country) 
-          VALUES (?, ?,?)`,
-      [name, address, country]
+      `INSERT INTO products (title, slug, lang,status,type,count) 
+          VALUES (?, ?,?,?,?,?)`,
+      [title, slug, lang,status,type,count]
     );
     res.status(202).json({
       message: "product Created",
@@ -90,6 +90,8 @@ app.get("/average2", async (req, res) => {
     });	
   }
 });
+
+//ambil product by id
 app.get("/products/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -105,16 +107,17 @@ app.get("/products/:id", async (req, res) => {
     });
   }
 });
-
+//update produk
 app.patch("/products/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, slug, lang,status} = req.body;
+    const { title, slug, lang,type,status,count} = req.body;
     const update = await connection
       .promise()
       .query(
-        `UPDATE products set title = ?, slug = ?, lang = ?,status = ? where id = ?`,
-        [ title, slug, lang,status,id]
+        `UPDATE products set title = ?, slug = ?, lang = ?,type = ?,status = ?,count=? where id = ?`,
+        [ title, slug, lang,type,status,count,id]
+		 
       );
     res.status(200).json({
       message: "updated",
