@@ -15,7 +15,7 @@ const connection = mysql.createPool({
 
 // post request
 
-app.post("/users", async (req, res) => {
+app.post("/products", async (req, res) => {
   try {
     const { name, address, country } = req.body;
     const [{ insertId }] = await connection.promise().query(
@@ -24,7 +24,7 @@ app.post("/users", async (req, res) => {
       [name, address, country]
     );
     res.status(202).json({
-      message: "User Created",
+      message: "product Created",
     });
   } catch (err) {
     res.status(500).json({
@@ -33,7 +33,7 @@ app.post("/users", async (req, res) => {
   }
 });
 
-app.get("/persons", async (req, res) => {
+app.get("/products", async (req, res) => {
   try {
     const data = await connection.promise().query(`SELECT *  from products;`);
     res.status(200).json({
@@ -45,27 +45,13 @@ app.get("/persons", async (req, res) => {
     });	
   }
 });
-
-
-app.get("/persons", async (req, res) => {
+//filter
+app.get("/products/kategori/:categori_id", async (req, res) => {
   try {
-    const data = await connection.promise().query(`SELECT *  from products;`);
-    res.status(200).json({
-      users: data[0],
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: err,
-    });	
-  }
-});
-
-app.get("/person/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
+    const { categori_id } = req.params;
     const data = await connection
       .promise()
-      .query(`SELECT *  from person where customerNumber = ?`, [id]);
+      .query(`SELECT *  from products where categori_id = ?`, [categori_id]);
     res.status(200).json({
       user: data[0][0],
     });
@@ -76,15 +62,59 @@ app.get("/person/:id", async (req, res) => {
   }
 });
 
-app.patch("/person/:id", async (req, res) => {
+//cari modus emo
+app.get("/average", async (req, res) => {
+  try {
+    const data = await connection.promise().query(`select name,emotion,avg(score),created from average group by id,name;`);
+    res.status(200).json({
+      users: data[0],
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err,
+    });	
+  }
+});
+
+
+//cari modus score
+app.get("/average2", async (req, res) => {
+  try {
+    const data = await connection.promise().query(`select name,avg(score),emotion,created from average group by id,name,created;`);
+    res.status(200).json({
+      users: data[0],
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err,
+    });	
+  }
+});
+app.get("/products/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { customerName, city, country } = req.body;
+    const data = await connection
+      .promise()
+      .query(`SELECT *  from products where id = ?`, [id]);
+    res.status(200).json({
+      user: data[0][0],
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err,
+    });
+  }
+});
+
+app.patch("/products/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, slug, lang,status} = req.body;
     const update = await connection
       .promise()
       .query(
-        `UPDATE person set customerName = ?, city = ?, country = ? where customerNumber = ?`,
-        [ customerName, city, country,customerNumber]
+        `UPDATE products set title = ?, slug = ?, lang = ?,status = ? where id = ?`,
+        [ title, slug, lang,status,id]
       );
     res.status(200).json({
       message: "updated",
@@ -96,13 +126,13 @@ app.patch("/person/:id", async (req, res) => {
   }
 });
 
-app.delete("/person/:id", async (req, res) => {
+app.delete("/products/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const update = await connection
         .promise()
         .query(
-          `DELETE FROM  person where customerNumber = ?`,
+          `DELETE FROM  products where id = ?`,
           [id]
         );
       res.status(200).json({
